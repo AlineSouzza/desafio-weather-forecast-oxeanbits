@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".presenter.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,17 +31,17 @@
                 android:layout_width="95dp"
                 android:layout_height="111dp"
                 android:layout_marginStart="15dp"
-                android:src="@drawable/image_sun_64x"/>
+                android:src="@drawable/image_sun_64x" />
 
             <TextView
                 android:id="@+id/name_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="end"
                 android:layout_gravity="center"
-                android:textColor="#000"
                 android:layout_marginEnd="15dp"
+                android:gravity="end"
                 android:text="@string/text_salvador"
+                android:textColor="#000"
                 android:textSize="24sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -51,19 +51,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="#000"
             android:text="@string/number_36_degree"
-            android:textStyle="bold"
-            android:textSize="60sp"/>
+            android:textColor="#000"
+            android:textSize="60sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/text_about_climate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="#000"
             android:text="@string/text_about_climate"
-            android:textSize="15sp"/>
-    </LinearLayout>
+            android:textColor="#000"
+            android:textSize="15sp" />
 
+        <Button
+            android:id="@+id/btn_get_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Clique para obter a localização"
+            android:textAllCaps="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
