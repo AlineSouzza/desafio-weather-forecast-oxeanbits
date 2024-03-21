@@ -14,6 +14,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import com.example.weatherforecast.R
+import com.example.weatherforecast.network.RemoteDataSource
+import com.example.weatherforecast.network.services
 import com.example.weatherforecast.presenter.search.SearchWeatherForecastViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,6 +23,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity(), LocationListener {
 
     private val viewModel: SearchWeatherForecastViewModel by viewModels()
+
+    private val apiService by lazy { services() }
 
     private lateinit var locationManager: LocationManager
     private lateinit var tvGpsLocation: TextView
@@ -52,7 +56,7 @@ class MainActivity : ComponentActivity(), LocationListener {
 
 
     private fun getResponse () {
-        viewModel.getWeatherForecast("-12.900975")
+        RemoteDataSource(apiService).getWeartherForecast()
     }
 
     private fun getPermissionLocation() {
