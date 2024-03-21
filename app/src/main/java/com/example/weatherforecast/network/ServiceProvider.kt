@@ -9,7 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-private const val baseUrl = "https://api.open-meteo.com/v1/forecast/"
+private const val baseUrl = "https://api.open-meteo.com/v1/"
 
 fun client(): OkHttpClient = OkHttpClient.Builder()
     .connectTimeout(60, TimeUnit.SECONDS)
