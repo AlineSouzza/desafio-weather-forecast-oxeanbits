@@ -23,8 +23,6 @@ class RemoteDataSource(private val serviceApi: ServiceApi) {
             override fun onFailure(call: Call<WeatherForecastModel>, t: Throwable) {
                 TODO("Not yet implemented")
             }
-
-
         })
     }
 }
