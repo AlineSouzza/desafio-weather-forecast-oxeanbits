@@ -11,6 +11,8 @@ data class WeatherForecastModel(
     val elevation: Double?,
     val hourly_units: HourlyUnitsModel?,
     val hourly: HourlyModel?,
+    val daily: DailyModel?,
+    val current: CurrentModel?,
 )
 
 
