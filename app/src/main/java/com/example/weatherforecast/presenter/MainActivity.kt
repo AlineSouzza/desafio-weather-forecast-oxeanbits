@@ -7,6 +7,9 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -15,6 +18,7 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weatherforecast.R
 import com.example.weatherforecast.databinding.ActivityMainBinding
 import com.example.weatherforecast.model.HourlyModel
 import com.example.weatherforecast.model.WeatherForecastModel
@@ -27,7 +31,37 @@ import retrofit2.Callback
 import retrofit2.Response
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity(), LocationListener {
+class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSelectedListener {
+
+    var brazilianCapitals = arrayOf(
+        "Aracaju",
+        "Belém",
+        "Belo Horizonte",
+        "Boa Vista",
+        "Brasília *",
+        "Campo Grande",
+        "Cuiabá",
+        "Curitiba",
+        "Florianópolis",
+        "Fortaleza",
+        "Goiânia",
+        "João Pessoa",
+        "Macapá",
+        "Maceió",
+        "Manaus",
+        "Natal",
+        "Palmas",
+        "Porto Alegre",
+        "Porto Velho",
+        "Recife",
+        "Rio Branco",
+        "Rio de Janeiro",
+        "Salvador",
+        "São Luís",
+        "São Paulo",
+        "Teresina",
+        "Vitória",
+    )
 
     private val viewModel: SearchWeatherForecastViewModel by viewModels()
     private val serviceApi by lazy { services() }
@@ -65,6 +99,17 @@ class MainActivity : ComponentActivity(), LocationListener {
         binding.recyclerHourly.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         }
+
+        val arrayAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, brazilianCapitals)
+        arrayAdapter.setDropDownViewResource(R.layout.spinner_left_item)
+
+        with(binding.spinnerBrazilianCapitals) {
+            adapter = arrayAdapter
+            setSelection(0, false)
+            onItemSelectedListener = this@MainActivity
+            prompt = "Selecione uma capital"
+        }
     }
 
     private fun getDataHourly(hourlyModel: HourlyModel) {
@@ -73,8 +118,6 @@ class MainActivity : ComponentActivity(), LocationListener {
         hourlyList.addAll(hourlyModel.temperature_2m)
 
         hourlyAdapter.notifyDataSetChanged()
-
-
     }
 
     private fun getResponse() {
@@ -136,5 +179,26 @@ class MainActivity : ComponentActivity(), LocationListener {
                 Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onItemSelected(p0: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        when (view?.id) {
+            1 -> showToast(message = "Previsão do tempo em ${brazilianCapitals[position]}")
+            else -> {
+               showToast(message = "Previsão do tempo em ${brazilianCapitals[position]}")
+            }
+        }
+    }
+
+    override fun onNothingSelected(p0: AdapterView<*>?) {
+        showToast(message = "Nada selecionado")
+    }
+
+    private fun showToast(
+        context: Context = applicationContext,
+        message: String,
+        duration: Int = Toast.LENGTH_LONG
+    ) {
+        Toast.makeText(context, message, duration).show()
     }
 }
