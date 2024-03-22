@@ -7,22 +7,21 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class RemoteDataSource(private val serviceApi: ServiceApi) {
-    fun getWeatherForecast() {
-
-        serviceApi.getWeatherForecast().enqueue(object: Callback<WeatherForecastModel>{
-            override fun onResponse(
-                call: Call<WeatherForecastModel>,
-                response: Response<WeatherForecastModel>
-            ) {
-                if (response.isSuccessful){
-
-                }
-
-            }
-
-            override fun onFailure(call: Call<WeatherForecastModel>, t: Throwable) {
-                TODO("Not yet implemented")
-            }
-        })
-    }
+//    fun getWeatherForecast() {
+//
+//        serviceApi.getWeatherForecast().enqueue(object: Callback<WeatherForecastModel>{
+//            override fun onResponse(
+//                call: Call<WeatherForecastModel>,
+//                response: Response<WeatherForecastModel>
+//            ) {
+//                if (response.isSuccessful){
+//
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<WeatherForecastModel>, t: Throwable) {
+//                TODO("Not yet implemented")
+//            }
+//        })
+//    }
 }
