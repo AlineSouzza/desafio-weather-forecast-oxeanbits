@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -66,15 +65,18 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
     private val viewModel: SearchWeatherForecastViewModel by viewModels()
     private val serviceApi by lazy { services() }
 
-    private lateinit var locationManager: LocationManager
-    private lateinit var tvGpsLocation: TextView
-    private lateinit var tvTemperature: TextView
     private lateinit var binding: ActivityMainBinding
-    private val locationPermissionCode = 2
+    private lateinit var locationManager: LocationManager
+    private lateinit var temperature: TextView
+    private lateinit var indexUv: TextView
+    private lateinit var relativeHumidity: TextView
+    private lateinit var precipitation: TextView
+    private lateinit var isDay: TextView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var hourlyAdapter: HourlyAdapter
 
-    private var recyclerView: RecyclerView? = null
+    private val locationPermissionCode = 2
     private var hourlyList: ArrayList<Double> = ArrayList()
-    lateinit var hourlyAdapter: HourlyAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,20 +84,18 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
         val view = binding.root
         setContentView(view)
 
-        getPermissionLocation()
-
-        tvTemperature = binding.textNumberDegree
+        temperature = binding.temperature
+        indexUv = binding.indexUv
+        relativeHumidity = binding.relativeHumidity
+        precipitation = binding.precipitation
+        isDay = binding.isDay
         recyclerView = binding.recyclerHourly
-        val button: Button = binding.btnGetLocation
-        button.setOnClickListener {
-            getResponse()
-        }
 
         hourlyAdapter = HourlyAdapter(hourlyList)
 
         val llm = LinearLayoutManager(this)
-        recyclerView?.layoutManager = llm
-        recyclerView?.adapter = hourlyAdapter
+        recyclerView.layoutManager = llm
+        recyclerView.adapter = hourlyAdapter
         binding.recyclerHourly.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         }
@@ -106,10 +106,10 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
 
         with(binding.spinnerBrazilianCapitals) {
             adapter = arrayAdapter
-            setSelection(0, false)
             onItemSelectedListener = this@MainActivity
-            prompt = "Selecione uma capital"
         }
+
+        getPermissionLocation()
     }
 
     private fun getDataHourly(hourlyModel: HourlyModel) {
@@ -120,25 +120,38 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
         hourlyAdapter.notifyDataSetChanged()
     }
 
-    private fun getResponse() {
-        serviceApi.getWeatherForecast().enqueue(object : Callback<WeatherForecastModel> {
-            override fun onResponse(
-                call: Call<WeatherForecastModel>,
-                response: Response<WeatherForecastModel>
-            ) {
-                if (response.isSuccessful) {
-                    val weatherForecastModel = response.body()
-                    tvTemperature.text =
-                        weatherForecastModel?.hourly?.temperature_2m?.get(0).toString() + "°"
-                    weatherForecastModel?.hourly?.let { getDataHourly(it) }
+    private fun getResponse(latitude: Double, longitude: Double) {
+        serviceApi.getWeatherForecast(latitude, longitude)
+            .enqueue(object : Callback<WeatherForecastModel> {
+                override fun onResponse(
+                    call: Call<WeatherForecastModel>,
+                    response: Response<WeatherForecastModel>
+                ) {
+                    if (response.isSuccessful) {
+                        val weatherForecastModel = response.body()
+                        temperature.text =
+                            weatherForecastModel?.hourly?.temperature_2m?.get(0).toString() + "°"
+                        weatherForecastModel?.hourly?.let { getDataHourly(it) }
+
+                        indexUv.text = weatherForecastModel?.daily?.uv_index_max?.get(0).toString()
+                        relativeHumidity.text =
+                            weatherForecastModel?.current?.relative_humidity_2m.toString() + "%"
+                        precipitation.text =
+                            weatherForecastModel?.daily?.precipitation_probability_max?.get(0)
+                                .toString()
+                        isDay.text = weatherForecastModel?.current?.is_day.toString()
+                        if(isDay.equals(1)) {
+                            isDay.setText("dia")
+                        } else {
+                            isDay.setText("noite")
+                        }
+                    }
                 }
 
-            }
-
-            override fun onFailure(call: Call<WeatherForecastModel>, t: Throwable) {
-                TODO("Not yet implemented")
-            }
-        })
+                override fun onFailure(call: Call<WeatherForecastModel>, t: Throwable) {
+                    TODO("Not yet implemented")
+                }
+            })
     }
 
     private fun getPermissionLocation() {
@@ -160,9 +173,7 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
     }
 
     override fun onLocationChanged(location: Location) {
-        tvGpsLocation = binding.textAboutClimate
-        tvGpsLocation.text =
-            "Latitude: " + location.latitude + " , Longitude: " + location.longitude
+        getResponse(location.latitude, location.longitude)
     }
 
     override fun onRequestPermissionsResult(
@@ -185,7 +196,7 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
         when (view?.id) {
             1 -> showToast(message = "Previsão do tempo em ${brazilianCapitals[position]}")
             else -> {
-               showToast(message = "Previsão do tempo em ${brazilianCapitals[position]}")
+                showToast(message = "Previsão do tempo em ${brazilianCapitals[position]}")
             }
         }
     }
