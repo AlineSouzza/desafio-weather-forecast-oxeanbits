@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Weather Forecast</string>
-    <string name="text_about_climate">Predominantemente enrolarado</string>
+    <string name="text_information_climate">Informações à mais sobre o clima:</string>
 </resources>
