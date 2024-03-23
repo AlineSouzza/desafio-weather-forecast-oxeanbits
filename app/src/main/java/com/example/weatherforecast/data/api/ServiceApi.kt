@@ -6,7 +6,8 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ServiceApi {
-    @GET("forecast?hourly=temperature_2m&daily=uv_index_max&current=relative_humidity_2m&daily=precipitation_probability_max&current=is_day")
+    @GET("forecast?hourly=temperature_2m&daily=uv_index_max&current=relative_humidity_2m" +
+            "&daily=precipitation_probability_max&current=is_day&daily=sunrise,sunset&timezone=America%2FSao_Paulo")
     fun getWeatherForecast(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double
