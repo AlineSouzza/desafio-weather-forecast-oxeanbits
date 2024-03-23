@@ -19,11 +19,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherforecast.R
 import com.example.weatherforecast.databinding.ActivityMainBinding
+import com.example.weatherforecast.model.CapitalModel
 import com.example.weatherforecast.model.HourlyModel
 import com.example.weatherforecast.model.WeatherForecastModel
 import com.example.weatherforecast.network.services
 import com.example.weatherforecast.presenter.list.adapter.HourlyAdapter
 import com.example.weatherforecast.presenter.search.SearchWeatherForecastViewModel
+import com.example.weatherforecast.util.CapitalUtils
 import dagger.hilt.android.AndroidEntryPoint
 import retrofit2.Call
 import retrofit2.Callback
@@ -31,36 +33,6 @@ import retrofit2.Response
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSelectedListener {
-
-    var brazilianCapitals = arrayOf(
-        "Aracaju",
-        "Belém",
-        "Belo Horizonte",
-        "Boa Vista",
-        "Brasília *",
-        "Campo Grande",
-        "Cuiabá",
-        "Curitiba",
-        "Florianópolis",
-        "Fortaleza",
-        "Goiânia",
-        "João Pessoa",
-        "Macapá",
-        "Maceió",
-        "Manaus",
-        "Natal",
-        "Palmas",
-        "Porto Alegre",
-        "Porto Velho",
-        "Recife",
-        "Rio Branco",
-        "Rio de Janeiro",
-        "Salvador",
-        "São Luís",
-        "São Paulo",
-        "Teresina",
-        "Vitória",
-    )
 
     private val viewModel: SearchWeatherForecastViewModel by viewModels()
     private val serviceApi by lazy { services() }
@@ -72,11 +44,15 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
     private lateinit var relativeHumidity: TextView
     private lateinit var precipitation: TextView
     private lateinit var isDay: TextView
+    private lateinit var sunrise: TextView
+    private lateinit var sunset: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var hourlyAdapter: HourlyAdapter
 
     private val locationPermissionCode = 2
     private var hourlyList: ArrayList<Double> = ArrayList()
+    private var capitalArray: ArrayList<CapitalModel> = ArrayList()
+    private var spinnerLocationLabels: ArrayList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +65,8 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
         relativeHumidity = binding.relativeHumidity
         precipitation = binding.precipitation
         isDay = binding.isDay
+        sunrise = binding.sunrise
+        sunset = binding.sunset
         recyclerView = binding.recyclerHourly
 
         hourlyAdapter = HourlyAdapter(hourlyList)
@@ -100,8 +78,26 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         }
 
+        setupSpinner()
+
+        getPermissionLocation()
+    }
+
+    private fun getDataHourly(hourlyModel: HourlyModel) {
+        hourlyList.clear()
+        hourlyList.addAll(hourlyModel.temperature_2m)
+
+        hourlyAdapter.notifyDataSetChanged()
+    }
+
+    private fun setupSpinner() {
+        capitalArray = CapitalUtils().getCapitalsData()
+        for (capital in capitalArray) {
+            spinnerLocationLabels.add(capital.nome)
+        }
+
         val arrayAdapter =
-            ArrayAdapter(this, android.R.layout.simple_spinner_item, brazilianCapitals)
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, spinnerLocationLabels)
         arrayAdapter.setDropDownViewResource(R.layout.spinner_left_item)
 
         with(binding.spinnerBrazilianCapitals) {
@@ -109,15 +105,6 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
             onItemSelectedListener = this@MainActivity
         }
 
-        getPermissionLocation()
-    }
-
-    private fun getDataHourly(hourlyModel: HourlyModel) {
-
-        hourlyList.clear()
-        hourlyList.addAll(hourlyModel.temperature_2m)
-
-        hourlyAdapter.notifyDataSetChanged()
     }
 
     private fun getResponse(latitude: Double, longitude: Double) {
@@ -140,11 +127,15 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
                             weatherForecastModel?.daily?.precipitation_probability_max?.get(0)
                                 .toString()
                         isDay.text = weatherForecastModel?.current?.is_day.toString()
-                        if(isDay.equals(1)) {
+
+                        if (isDay.equals(1)) {
                             isDay.setText("dia")
                         } else {
                             isDay.setText("noite")
                         }
+
+                        sunrise.text = weatherForecastModel?.daily?.sunrise?.get(0).toString()
+                        sunset.text = weatherForecastModel?.daily?.sunset?.get(0).toString()
                     }
                 }
 
@@ -193,12 +184,9 @@ class MainActivity : ComponentActivity(), LocationListener, AdapterView.OnItemSe
     }
 
     override fun onItemSelected(p0: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        when (view?.id) {
-            1 -> showToast(message = "Previsão do tempo em ${brazilianCapitals[position]}")
-            else -> {
-                showToast(message = "Previsão do tempo em ${brazilianCapitals[position]}")
-            }
-        }
+        showToast(message = "Previsão do tempo em ${capitalArray[position].nome}")
+
+        getResponse(capitalArray[position].latitude, capitalArray[position].longitude)
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
