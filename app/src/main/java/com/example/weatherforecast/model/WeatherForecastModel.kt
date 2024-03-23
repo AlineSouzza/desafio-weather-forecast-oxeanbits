@@ -10,9 +10,9 @@ data class WeatherForecastModel(
     val timezone_abbreviation: String?,
     val elevation: Double?,
     val hourly_units: HourlyUnitsModel?,
-    val hourly: HourlyModel?,
-    val daily: DailyModel?,
-    val current: CurrentModel?,
+    val hourly: HourlyModel,
+    val daily: DailyModel,
+    val current: CurrentModel,
 )
 
 
